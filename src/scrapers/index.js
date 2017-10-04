@@ -1,11 +1,11 @@
-const { URL } = require('url');
+const url = require('url');
 
 const amazonIn = require('./amazon.in');
 const flipkart = require('./flipkart');
 const myntra = require('./myntra');
 
 module.exports = (scrapeUrl) => {
-  const { host } = new URL(scrapeUrl);
+  const { host } = url.parse(scrapeUrl);
   switch (host) {
     case 'www.amazon.in':
       return amazonIn(scrapeUrl);
