@@ -54,7 +54,7 @@ module.exports = (url) => {
          * get image
          */
         const imageDOM = document.querySelector('#imgTagWrapperId > img');
-        const image = imageDOM.getAttribute('data-old-hires');
+        const image = imageDOM.getAttribute('data-old-hires') || imageDOM.getAttribute('src');
 
         return Promise.resolve({
           name,

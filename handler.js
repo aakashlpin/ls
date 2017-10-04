@@ -1,11 +1,11 @@
 'use strict';
 const request = require('request');
 const qs = require('querystring');
-const scrapeAmazon = require('./src/scrapers/amazon.in');
+const scrape = require('./src/scrapers');
 
 module.exports.add = (event, context, callback) => {
   const { url } = qs.parse(event.body);
-  scrapeAmazon(url)
+  scrape(url)
     .then(function (data) {
       callback(null, {
         statusCode: 200,
