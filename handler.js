@@ -1,10 +1,9 @@
 'use strict';
 const request = require('request');
-const qs = require('querystring');
 const scrape = require('./src/scrapers');
 
 module.exports.add = (event, context, callback) => {
-  const { url } = qs.parse(event.body);
+  const { url } = JSON.parse(event.body);
   scrape(url)
     .then(function (data) {
       callback(null, {
@@ -21,24 +20,27 @@ module.exports.run = (event, context, callback) => {
   request({
     url: `${process.env.ZEIT_SERVER}/api/crawl_all`,
     method: 'POST',
-    form: {},
+    json: {},
   }, (requestError, response, body) => {
     callback(requestError, body);
   });
 }
 
 module.exports.crawl = (event, context, callback) => {
-  const productInfo = qs.parse(event.body);
-  const { url, id } = productInfo;
-  scrapeAmazon(url)
+  const productInfo = JSON.parse(event.body);
+  const { url, id, seller } = productInfo;
+  scrape(url, seller)
     .then(function (scrapedInfo) {
       request({
         url: `${process.env.ZEIT_SERVER}/api/prices/${id}`,
         method: 'POST',
-        form: {
+        json: {
           productInfo: productInfo,
           scrapedInfo: scrapedInfo,
-        }
+        },
+        headers: {
+          "Content-type": "application/json",
+        },
       }, (requestError, response, body) => {
         callback(requestError, body);
       });

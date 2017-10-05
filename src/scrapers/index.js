@@ -1,19 +1,44 @@
-const url = require('url');
+const urlUtil = require('url');
 
 const amazonIn = require('./amazon.in');
 const flipkart = require('./flipkart');
 const myntra = require('./myntra');
 
-module.exports = (scrapeUrl) => {
-  const { host } = url.parse(scrapeUrl);
-  switch (host) {
-    case 'www.amazon.in':
-      return amazonIn(scrapeUrl);
-    case 'www.flipkart.com':
-      return flipkart(scrapeUrl);
-    case 'www.myntra.com':
-      return myntra(scrapeUrl);
-    default:
-      return Promise.reject('Website not supported');
+const sellers = {
+  amazonIn,
+  flipkart,
+  myntra,
+};
+
+const getSeller = host =>
+  Object.keys(sellers).find(seller =>
+    host.indexOf(sellers[seller].host) >= 0
+  )
+
+module.exports = (url, seller) => {
+  if (seller && Object.keys(sellers).indexOf(seller) === -1) {
+    return Promise.reject({
+      seller, url,
+      message: 'unsupported `seller` supplied as arg; this is most likely a data issue in db',
+    });
   }
+
+  const _seller = seller || getSeller(urlUtil.parse(url).host);
+
+  if (!_seller) {
+    return Promise.reject({ message: 'website/seller invalid', url });
+  }
+
+  const { scrape, normalize } = sellers[_seller];
+
+  return new Promise((resolve, reject) =>
+    scrape(url).then(data =>
+      resolve(Object.assign({}, data, {
+        url: normalize(url)
+      }))
+    ).catch(e => {
+      console.log(e);
+      reject(e);
+    })
+  )
 }
