@@ -32,7 +32,7 @@ functions:
     handler: handler.run  # This will require the handler.js file,
                           # and execute the exported run function
     events:
-      - schedule: rate(1 minute)
+      - schedule: rate(15 minutes)
 
   add:
     description: Scrape webpage for alert set up
