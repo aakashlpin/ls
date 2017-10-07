@@ -69,7 +69,6 @@ module.exports = {
           return Promise.reject(e);
         }
       })
-      .screenshot()
       .end();
   },
 
